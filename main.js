@@ -144,8 +144,13 @@ window.onload = function() {
 
   function playerReset() {
     const types = 'IJLOSTZ';
-    const type = player.next || types[Math.floor(Math.random() * 7)];
+    // next가 null이면 무작위로 지정
+    if (!player.next) {
+      player.next = types[Math.floor(Math.random() * 7)];
+    }
+    const type = player.next;
     player.matrix = createPiece(types.indexOf(type) + 1);
+    // 다음 블록 미리 뽑기
     player.next = types[Math.floor(Math.random() * 7)];
     player.pos.y = 0;
     player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
@@ -176,6 +181,7 @@ window.onload = function() {
   function update(time = 0) {
     if (!running) {
       draw();
+      requestAnimationFrame(update); // 항상 다음 프레임 예약
       return;
     }
     const deltaTime = time - lastTime;
@@ -214,11 +220,15 @@ window.onload = function() {
     arena.forEach(row => row.fill(0));
     score = 0;
     running = true;
+    dropCounter = 0;
+    lastTime = 0;
+    player.next = null; // next를 null로 초기화
     playerReset();
     updateScore();
     update();
   });
 
+  // 초기 게임 상태 설정
   draw();
   updateScore();
 };
